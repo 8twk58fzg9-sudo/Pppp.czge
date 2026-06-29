@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulačka spotreby | Proti plesniam</title>
+  <style>
+    :root {
+      --black: #000000;
+      --dark: #1a1a1a;
+      --mid: #555555;
+      --line: #dddddd;
+      --panel: #f5f5f5;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: #ffffff;
+      color: var(--dark);
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .site-bar {
+      border-bottom: 1px solid #e8e8e8;
+      background: #ffffff;
+    }
+
+    .site-bar__inner {
+      max-width: 1160px;
+      min-height: 66px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      color: var(--black);
+      text-decoration: none;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+
+    .brand span {
+      font-weight: 400;
+    }
+
+    .nav-note {
+      color: #666;
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 68px 24px 90px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 680px;
+      color: #000;
+      font-size: clamp(34px, 5vw, 54px);
+      line-height: 1.04;
+      letter-spacing: -0.045em;
+    }
+
+    .lead {
+      max-width: 650px;
+      margin: 18px 0 42px;
+      color: #555;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    #ppc-calculator {
+      max-width: 760px;
+    }
+
+    #ppc-calculator * { box-sizing: border-box; }
+
+    #ppc-calculator .ppc-box {
+      background: var(--panel);
+      padding: 30px;
+      border-radius: 6px;
+    }
+
+    #ppc-calculator .ppc-title {
+      margin: 0 0 8px;
+      color: #000;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    #ppc-calculator .ppc-intro {
+      margin: 0 0 24px;
+      color: var(--mid);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    #ppc-calculator .ppc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    #ppc-calculator .ppc-field {
+      margin-bottom: 18px;
+    }
+
+    #ppc-calculator label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--dark);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    #ppc-calculator input,
+    #ppc-calculator select {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--dark);
+      padding: 11px 13px;
+      font: inherit;
+      font-size: 16px;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    #ppc-calculator input:focus,
+    #ppc-calculator select:focus {
+      border-color: var(--black);
+      box-shadow: 0 0 0 2px rgba(0,0,0,.08);
+    }
+
+    #ppc-calculator .ppc-help {
+      margin-top: 7px;
+      color: #666;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    #ppc-calculator .ppc-button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    #ppc-calculator button,
+    #ppc-calculator .ppc-buy-button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      padding: 12px 18px;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+
+    #ppc-calculator .ppc-calculate {
+      border: 0;
+      background: var(--black);
+      color: var(--white);
+    }
+
+    #ppc-calculator .ppc-calculate:hover,
+    #ppc-calculator .ppc-buy-button:hover {
+      background: #333;
+      color: var(--white);
+    }
+
+    #ppc-calculator .ppc-reset {
+      border: 1px solid #ccc;
+      background: transparent;
+      color: var(--dark);
+    }
+
+    #ppc-calculator .ppc-reset:hover {
+      border-color: var(--black);
+    }
+
+    #ppc-calculator .ppc-error {
+      display: none;
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-left: 3px solid var(--black);
+      background: var(--white);
+      color: var(--dark);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    #ppc-calculator .ppc-result {
+      display: none;
+      margin-top: 24px;
+      padding: 24px;
+      border-radius: 6px;
+      background: var(--white);
+      box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    }
+
+    #ppc-calculator .ppc-result-heading {
+      margin: 0 0 18px;
+      color: var(--black);
+      font-size: 21px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    #ppc-calculator .ppc-result-list {
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #eee;
+      list-style: none;
+    }
+
+    #ppc-calculator .ppc-result-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 13px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    #ppc-calculator .ppc-result-list span { color: #555; }
+    #ppc-calculator .ppc-result-list strong {
+      color: var(--black);
+      text-align: right;
+      font-weight: 700;
+    }
+
+    #ppc-calculator .ppc-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 4px;
+      background: var(--panel);
+    }
+
+    #ppc-calculator .ppc-price-label {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    #ppc-calculator .ppc-price {
+      color: var(--black);
+      font-size: 24px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    #ppc-calculator .ppc-buy-button {
+      width: 100%;
+      margin-top: 16px;
+      border: 0;
+      background: var(--black);
+      color: var(--white);
+    }
+
+    #ppc-calculator .ppc-note {
+      margin: 16px 0 0;
+      color: #666;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    #ppc-calculator .ppc-hidden { display: none !important; }
+
+    .preview-note {
+      max-width: 760px;
+      margin: 32px 0 0;
+      color: #777;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 600px) {
+      .site-bar__inner { padding: 0 18px; }
+      .nav-note { display: none; }
+      main { padding: 44px 18px 64px; }
+      #ppc-calculator .ppc-box { padding: 20px; }
+      #ppc-calculator .ppc-title { font-size: 24px; }
+      #ppc-calculator .ppc-grid { grid-template-columns: 1fr; gap: 0; }
+      #ppc-calculator .ppc-button-row { display: grid; grid-template-columns: 1fr; }
+      #ppc-calculator button { width: 100%; }
+      #ppc-calculator .ppc-result-list li,
+      #ppc-calculator .ppc-price-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+      #ppc-calculator .ppc-result-list strong { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-bar">
+    <div class="site-bar__inner">
+      <a class="brand" href="#">proti<span>plesniam</span>.sk</a>
+      <div class="nav-note">Náhľad kalkulačky spotreby</div>
+    </div>
+  </header>
+
+  <main>
+    <p class="eyebrow">Pomoc pri výbere</p>
+    <h1>Zistite, koľko produktu potrebujete.</h1>
+    <p class="lead">
+      Vyberte produkt, zadajte plochu napadnutú plesňou a pozrite si orientačné množstvo balení aj celkovú cenu.
+    </p>
+
+    <section id="ppc-calculator" aria-label="Kalkulačka spotreby">
+      <div class="ppc-box">
+        <h2 class="ppc-title">Kalkulačka spotreby</h2>
+        <p class="ppc-intro">
+          Zadajte plochu napadnutú plesňou a vyberte produkt. Kalkulačka orientačne vypočíta potrebné množstvo, odporučí balenie a zobrazí cenu.
+        </p>
+
+        <div class="ppc-grid">
+          <div class="ppc-field">
+            <label for="ppc-area">Plocha v m²</label>
+            <input type="text" id="ppc-area" inputmode="decimal" placeholder="Napr. 12,5" aria-describedby="ppc-area-help" />
+            <div class="ppc-help" id="ppc-area-help">Môžete použiť desatinnú čiarku aj bodku.</div>
+          </div>
+
+          <div class="ppc-field">
+            <label for="ppc-product">Vyberte produkt</label>
+            <select id="ppc-product">
+              <option value="sterisolan">SteriSolan</option>
+              <option value="bioni-nature">Bioni Nature</option>
+              <option value="bioni-hygienic">Bioni Hygienic</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ppc-field" id="ppc-surface-wrapper">
+          <label for="ppc-surface">Typ povrchu</label>
+          <select id="ppc-surface">
+            <option value="smooth">Hladký – omietka, sadrokartón</option>
+            <option value="porous">Pórovitý – betón, tehla</option>
+            <option value="absorbent">Silno savý – drevo, starý náter</option>
+          </select>
+          <div class="ppc-help">Typ povrchu ovplyvňuje spotrebu prípravku SteriSolan.</div>
+        </div>
+
+        <div class="ppc-button-row">
+          <button type="button" class="ppc-calculate" id="ppc-calculate">Vypočítať spotrebu</button>
+          <button type="button" class="ppc-reset" id="ppc-reset">Vymazať údaje</button>
+        </div>
+
+        <div class="ppc-error" id="ppc-error" role="alert"></div>
+
+        <div class="ppc-result" id="ppc-result" aria-live="polite">
+          <h3 class="ppc-result-heading">Odporúčané množstvo</h3>
+
+          <ul class="ppc-result-list">
+            <li><span>Zadaná plocha</span><strong id="ppc-result-area"></strong></li>
+            <li><span>Vybraný produkt</span><strong id="ppc-result-product"></strong></li>
+            <li id="ppc-result-surface-row"><span>Typ povrchu</span><strong id="ppc-result-surface"></strong></li>
+            <li><span>Potrebné množstvo</span><strong id="ppc-result-litres"></strong></li>
+            <li><span>Odporúčané balenie</span><strong id="ppc-result-package"></strong></li>
+            <li><span>Množstvo po kúpe</span><strong id="ppc-result-purchased"></strong></li>
+          </ul>
+
+          <div class="ppc-price-row">
+            <div class="ppc-price-label">Orientačná cena spolu</div>
+            <div class="ppc-price" id="ppc-result-price"></div>
+          </div>
+
+          <a class="ppc-buy-button" id="ppc-buy-button" href="#" target="_blank" rel="noopener">Kúpiť odporúčané balenie</a>
+
+          <p class="ppc-note">
+            Výpočet je orientačný. Skutočná spotreba závisí od nasiakavosti povrchu, stavu podkladu a spôsobu aplikácie.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <p class="preview-note">Náhľad pre GitHub Pages. Tlačidlo „Kúpiť“ vedie na produktové stránky protiplesniam.sk.</p>
+  </main>
+
+  <script>
+    (function () {
+      const products = {
+        sterisolan: {
+          name: "SteriSolan",
+          url: "https://www.protiplesniam.sk/product/sterisolan-dezinfekcny-pripravok-proti-plesni-bez-chloru/",
+          reserve: 0,
+          usesSurface: true,
+          packages: [{ litres: 1, price: 24.9, label: "1 l balenie" }],
+          surfaces: {
+            smooth: { name: "Hladký – omietka, sadrokartón", coverage: 8 },
+            porous: { name: "Pórovitý – betón, tehla", coverage: 5 },
+            absorbent: { name: "Silno savý – drevo, starý náter", coverage: 2.5 }
+          }
+        },
+        "bioni-nature": {
+          name: "Bioni Nature",
+          url: "https://www.protiplesniam.sk/product/bioni-nature-farba-proti-plesni/",
+          reserve: 0.1,
+          usesSurface: false,
+          coverage: 3.1,
+          packages: [
+            { litres: 5, price: 89.9, label: "5 l balenie" },
+            { litres: 10, price: 175.8, label: "10 l balenie" }
+          ]
+        },
+        "bioni-hygienic": {
+          name: "Bioni Hygienic",
+          url: "https://www.protiplesniam.sk/product/bioni-hygienic-hygienicka-interierova-farba/",
+          reserve: 0.1,
+          usesSurface: false,
+          coverage: 3.1,
+          packages: [
+            { litres: 5, price: 99.9, label: "5 l balenie" },
+            { litres: 10, price: 197.8, label: "10 l balenie" }
+          ]
+        }
+      };
+
+      const areaInput = document.getElementById("ppc-area");
+      const productSelect = document.getElementById("ppc-product");
+      const surfaceSelect = document.getElementById("ppc-surface");
+      const surfaceWrapper = document.getElementById("ppc-surface-wrapper");
+      const calculateButton = document.getElementById("ppc-calculate");
+      const resetButton = document.getElementById("ppc-reset");
+      const errorBox = document.getElementById("ppc-error");
+      const resultBox = document.getElementById("ppc-result");
+
+      const resultArea = document.getElementById("ppc-result-area");
+      const resultProduct = document.getElementById("ppc-result-product");
+      const resultSurface = document.getElementById("ppc-result-surface");
+      const resultSurfaceRow = document.getElementById("ppc-result-surface-row");
+      const resultLitres = document.getElementById("ppc-result-litres");
+      const resultPackage = document.getElementById("ppc-result-package");
+      const resultPurchased = document.getElementById("ppc-result-purchased");
+      const resultPrice = document.getElementById("ppc-result-price");
+      const buyButton = document.getElementById("ppc-buy-button");
+
+      function formatNumber(value, decimals) {
+        return Number(value).toFixed(decimals).replace(".", ",").replace(/,00$/, "");
+      }
+
+      function formatPrice(value) {
+        return new Intl.NumberFormat("sk-SK", {
+          style: "currency",
+          currency: "EUR"
+        }).format(value);
+      }
+
+      function showError(message) {
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+        resultBox.style.display = "none";
+      }
+
+      function hideError() {
+        errorBox.textContent = "";
+        errorBox.style.display = "none";
+      }
+
+      function getBestPackageCombination(requiredLitres, packages) {
+        const smallestPackage = Math.min(...packages.map(item => item.litres));
+        const maxCount = Math.ceil(requiredLitres / smallestPackage) + 3;
+        let best = null;
+
+        function search(index, chosen, totalLitres, totalPrice) {
+          if (index === packages.length) {
+            if (totalLitres >= requiredLitres) {
+              const waste = totalLitres - requiredLitres;
+
+              if (
+                !best ||
+                totalPrice < best.price ||
+                (totalPrice === best.price && waste < best.waste) ||
+                (totalPrice === best.price && waste === best.waste && totalLitres < best.litres)
+              ) {
+                best = { items: [...chosen], litres: totalLitres, price: totalPrice, waste };
+              }
+            }
+            return;
+          }
+
+          for (let count = 0; count <= maxCount; count++) {
+            chosen[index] = count;
+            search(
+              index + 1,
+              chosen,
+              totalLitres + count * packages[index].litres,
+              totalPrice + count * packages[index].price
+            );
+          }
+        }
+
+        search(0, [], 0, 0);
+        return best;
+      }
+
+      function packageDescription(combination, packages) {
+        return combination.items
+          .map((count, index) => count > 0 ? `${count}× ${packages[index].label}` : null)
+          .filter(Boolean)
+          .join(" + ");
+      }
+
+      function updateSurfaceVisibility() {
+        const product = products[productSelect.value];
+        surfaceWrapper.classList.toggle("ppc-hidden", !product.usesSurface);
+        resultBox.style.display = "none";
+        hideError();
+      }
+
+      function calculate() {
+        hideError();
+        const rawArea = areaInput.value.trim().replace(",", ".");
+        const area = parseFloat(rawArea);
+        const product = products[productSelect.value];
+
+        if (!rawArea || Number.isNaN(area) || area <= 0) {
+          showError("Zadajte platnú plochu väčšiu ako 0 m².");
+          return;
+        }
+
+        if (area > 100000) {
+          showError("Zadaná plocha je príliš vysoká. Skontrolujte, prosím, údaje.");
+          return;
+        }
+
+        let coverage;
+        let surfaceName = "";
+
+        if (product.usesSurface) {
+          const selectedSurface = product.surfaces[surfaceSelect.value];
+          coverage = selectedSurface.coverage;
+          surfaceName = selectedSurface.name;
+        } else {
+          coverage = product.coverage;
+        }
+
+        let litres = area / coverage;
+        litres *= 1 + product.reserve;
+
+        const combination = getBestPackageCombination(litres, product.packages);
+
+        resultArea.textContent = `${formatNumber(area, 2)} m²`;
+        resultProduct.textContent = product.name;
+        resultLitres.textContent = `${formatNumber(litres, 2)} l`;
+        resultPackage.textContent = packageDescription(combination, product.packages);
+        resultPurchased.textContent = `${formatNumber(combination.litres, 2)} l`;
+        resultPrice.textContent = formatPrice(combination.price);
+        buyButton.href = product.url;
+
+        if (product.usesSurface) {
+          resultSurfaceRow.style.display = "flex";
+          resultSurface.textContent = surfaceName;
+        } else {
+          resultSurfaceRow.style.display = "none";
+        }
+
+        resultBox.style.display = "block";
+        setTimeout(() => resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
+      }
+
+      function resetCalculator() {
+        areaInput.value = "";
+        productSelect.value = "sterisolan";
+        surfaceSelect.value = "smooth";
+        updateSurfaceVisibility();
+        areaInput.focus();
+      }
+
+      productSelect.addEventListener("change", updateSurfaceVisibility);
+      calculateButton.addEventListener("click", calculate);
+      resetButton.addEventListener("click", resetCalculator);
+      areaInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          calculate();
+        }
+      });
+
+      updateSurfaceVisibility();
+    })();
+  </script>
+</body>
+</html>
